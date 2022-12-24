@@ -39,7 +39,7 @@ impl NodeState {
 }
 
 fn mktree(source: &[Option<i32>]) -> Tree {
-    if source.is_empty(){
+    if source.is_empty() {
         return None;
     }
     let mut source_iter = source.iter();
@@ -47,17 +47,16 @@ fn mktree(source: &[Option<i32>]) -> Tree {
     let mut buff = VecDeque::new();
     buff.push_back(NodeState::new(&tree));
     for val in source_iter {
-        let cur = buff.pop_front().unwrap();
-        let subtree = if let Some(val) = val {
-            let subtree = new_tree(*val);
+        let subtree = val.and_then(|val|{
+            let subtree = new_tree(val);
             buff.push_back(NodeState::new(&subtree.as_ref().cloned()));
             subtree
-        } else {None};
-        match cur {
+        });
+        match buff.pop_front().unwrap() {
             NodeState::Left(Some(node)) => {
                 node.borrow_mut().left = subtree;
                 buff.push_front(NodeState::Right(Some(node)));
-            }
+            },
             NodeState::Right(Some(node)) => {
                 node.borrow_mut().right = subtree;
             },
