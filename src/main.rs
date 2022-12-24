@@ -33,11 +33,8 @@ enum NodeState {
 }
 
 impl NodeState {
-    fn left(t: &Tree) -> Self {
+    fn new(t: &Tree) -> Self {
         NodeState::Left(t.as_ref().cloned())
-    }
-    fn right(t: &Tree) -> Self {
-        NodeState::Right(t.as_ref().cloned())
     }
 }
 
@@ -45,23 +42,23 @@ fn mktree(source: &[Option<i32>]) -> Tree {
     let mut source_iter = source.iter();
     let tree: Tree = new_tree(source_iter.next().unwrap().unwrap());
     let mut buff = VecDeque::new();
-    buff.push_back(NodeState::left(&tree));
+    buff.push_back(NodeState::new(&tree));
     for val in source_iter {
         let cur = buff.pop_front().unwrap();
         match cur {
             NodeState::Left(Some(node)) => {
                 if let Some(val) = val {
-                    let left = new_tree(*val);
-                    buff.push_back(NodeState::left(&left.as_ref().cloned()));
-                    node.borrow_mut().left = left;
+                    let subtree = new_tree(*val);
+                    buff.push_back(NodeState::new(&subtree.as_ref().cloned()));
+                    node.borrow_mut().left = subtree;
                 }
                 buff.push_front(NodeState::Right(Some(node)));
             }
             NodeState::Right(Some(node)) => {
                 if let Some(val) = val {
-                    let right = new_tree(*val);
-                    buff.push_back(NodeState::left(&right.as_ref().cloned()));
-                    node.borrow_mut().right = right;
+                    let subtree = new_tree(*val);
+                    buff.push_back(NodeState::new(&subtree.as_ref().cloned()));
+                    node.borrow_mut().right = subtree;
                 }
             }
             _ => {
@@ -103,8 +100,11 @@ fn walk(t: Tree) {
 }
 
 fn main() {
-    let tree7 = mktree(&[Some(1), Some(2), Some(3), Some(4), None, None, Some(7), Some(8)]);
+    let tree7 = mktree(&[
+        Some(1),
+        Some(2), Some(3),
+        Some(4), None, None, Some(7),
+        Some(8),
+    ]);
     walk(tree7);
-    // println!("{:?}", tree7);
 }
-
